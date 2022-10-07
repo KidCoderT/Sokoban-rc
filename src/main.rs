@@ -1,4 +1,4 @@
-use ansi_term::*;
+use ansi_term;
 use crossterm::{
     cursor,
     event::{self, poll, Event, KeyCode, KeyEvent, KeyModifiers},
@@ -24,6 +24,7 @@ struct Game {
 }
 
 // ! can use SetColors when printing game
+// ! can use SetBackgroundColor Sets a default bg color for all the printed text
 
 // Shows the Game state and is
 // important for key pressing
@@ -42,15 +43,15 @@ fn padding(window_size: u16, text_size: u16) -> u16 {
     (window_size - text_size) / 2
 }
 
-fn get_style(string: &str) -> Style {
+fn get_style(string: &str) -> ansi_term::Style {
     // Gets the Style for the Characters
     match string {
-        "@" => Color::White.on(Color::RGB(232, 207, 0)), // Player
-        "*" => Color::White.on(Color::RGB(22, 69, 142)), // Wall
-        "#" => Color::White.on(Color::RGB(243, 47, 55)), // Crate
-        "?" => Color::Green.on(Color::Black),            // Storage Loc
-        "." => Color::Black.on(Color::Black),            // Blank
-        _ => Color::Green.on(Color::RGB(33, 135, 33)),   // correct pos
+        "@" => ansi_term::Color::White.on(ansi_term::Color::RGB(232, 207, 0)), // Player
+        "*" => ansi_term::Color::White.on(ansi_term::Color::RGB(22, 69, 142)), // Wall
+        "#" => ansi_term::Color::White.on(ansi_term::Color::RGB(243, 47, 55)), // Crate
+        "?" => ansi_term::Color::Green.on(ansi_term::Color::Black),            // Storage Loc
+        "." => ansi_term::Color::Black.on(ansi_term::Color::Black),            // Blank
+        _ => ansi_term::Color::Green.on(ansi_term::Color::RGB(33, 135, 33)),   // correct pos
     }
 }
 
@@ -59,13 +60,12 @@ fn main() -> io::Result<()> {
     execute!(stdout(), terminal::EnterAlternateScreen, cursor::Hide)?;
 
     terminal::enable_raw_mode()?;
-    let _ = enable_ansi_support();
+    let _ = ansi_term::enable_ansi_support();
 
     execute!(stdout(), terminal::SetTitle("Sokoban - RC"))?;
-    // execute!(stdout(), style::SetBackgroundColor(Color::RGB(0, 0, 0)))?; // FIXME
+    // execute!(stdout(), terminal::SetSize(200, 200))?;
 
     // * The Actual Game
-    // execute!(stdout(), terminal::SetSize(200, 200))?;
     let (mut columns, mut rows) = terminal::size().unwrap();
 
     let text = format!("columns: {columns}, rows: {rows}");
@@ -99,7 +99,6 @@ fn main() -> io::Result<()> {
                     }
 
                     // if esc or ctrl + c pressed quit
-
                     let ctrl_c_pressed = event.code == KeyCode::Char('c') && event.modifiers == KeyModifiers::CONTROL;
                     let esc_pressed = event.code == KeyCode::Esc;
 
