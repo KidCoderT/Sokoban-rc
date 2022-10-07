@@ -1,32 +1,63 @@
+use ansi_term;
 use crossterm::{
-    // cursor::{Hide, MoveTo, MoveToColumn, MoveUp, RestorePosition, SavePosition},
-    // event::{self, Event, KeyCode, KeyEvent, KeyModifiers},
-    // style::{Print, Stylize},
-    execute,
-    queue,
-    terminal::{self, Clear, ClearType, EnterAlternateScreen, LeaveAlternateScreen},
+    cursor,
+    event::{self, Event, KeyCode, KeyEvent, KeyModifiers},
+    execute, queue,
+    style::{Print, Stylize},
+    terminal,
 };
 use std::{
     io::{self, stdout, Write},
     time::{Duration, Instant},
 };
 
+struct Point {
+    x: i8, // column
+    y: i8, // row
+}
+
+struct Game {
+    player: Point,
+    walls: Vec<Vec<Point>>, // column, row ~ x, y
+    storage_locations: Vec<Point>,
+    crates: Vec<Point>,
+}
+
+// Shows the Game state and is
+// important for key pressing
+enum GameState {
+    HomeScreen,
+    HowToPlayScreen,
+    IsPlaying,
+    LevelFinished,
+    GameOver,
+}
+
+fn padding(window_size: u16, text_size: u16) -> u16 {
+    // Gets the position from where
+    // if printed a text it will be shown
+    // in the center
+    (window_size - text_size) / 2
+}
+
 fn main() -> io::Result<()> {
-    execute!(stdout(), EnterAlternateScreen)?;
-    let now = Instant::now();
-    
-    for i in 0..5_000 {
-        println!("{}", i);
-        // execute!(stdout(), Clear(ClearType::FromCursorUp))?;
-    }
-    
-    execute!(stdout(), Clear(ClearType::FromCursorUp))?;
-    let elapsed_time = now.elapsed();
+    execute!(
+        stdout(),
+        terminal::EnterAlternateScreen,
+        cursor::Hide,
+        cursor::MoveTo(0, 0)
+    )?;
+    terminal::enable_raw_mode()?;
+    let _ = ansi_term::enable_ansi_support();
 
-    println!("Hello World!\nfunction took {} seconds.", elapsed_time.as_secs());
+    // execute!(stdout(), terminal::SetSize(200, 200))?;
+    execute!(stdout(), terminal::SetTitle("Sokoban - RC"))?;
+    let (columns, rows) = terminal::size().unwrap();
 
+    let text = format!("hello {columns} {rows}");
+    execute!(stdout(), Print(text)).expect("Problem");
 
-    // execute!(stdout(), LeaveAlternateScreen)?;
-
+    // execute!(stdout(), terminal::LeaveAlternateScreen)?;
+    execute!(stdout(), cursor::Show)?;
     Ok(())
 }
