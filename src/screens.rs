@@ -29,7 +29,7 @@ fn long_text_len(strings: &Vec<&str>) -> u16 {
     let mut max_str_len = 0;
 
     for string in strings {
-        max_str_len = cmp::max(string.len().try_into().unwrap(), max_str_len);
+        max_str_len = cmp::max(string.chars().count().try_into().unwrap(), max_str_len);
     }
 
     return max_str_len;
@@ -66,7 +66,7 @@ impl Default for HomeScreenData<'_> {
             " ▄▄▄▄▄█ █       █    ▄  █       █ █▄█   █  ▄   █ █ █   █",
             "█▄▄▄▄▄▄▄█▄▄▄▄▄▄▄█▄▄▄█ █▄█▄▄▄▄▄▄▄█▄▄▄▄▄▄▄█▄█ █▄▄█▄█  █▄▄█",
             "",
-            "                                                        ",
+            "",
             "                     > New Game      ",
             "                     > How to play   ",
             "                     > Exit          ",
@@ -141,10 +141,13 @@ impl HomeScreenData<'_> {
 
 pub fn refresh_screen() {
     let (columns, rows) = terminal::size().unwrap();
-    execute!(stdout(), terminal::EnterAlternateScreen,).expect("refresh_screen() failed");
+
+    execute!(stdout(), terminal::EnterAlternateScreen, cursor::Hide)
+        .expect("refresh_screen() failed");
     let homescreen = HomeScreenData {
         ..Default::default()
     };
+
     homescreen.print(
         padding(columns, long_text_len(&homescreen.text)),
         padding(rows, homescreen.text.len().try_into().unwrap()),

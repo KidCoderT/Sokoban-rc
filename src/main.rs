@@ -36,12 +36,12 @@ fn main() -> io::Result<()> {
     let _ = ansi_term::enable_ansi_support();
 
     execute!(stdout(), terminal::SetTitle("Sokoban - RC"))?;
-    // execute!(stdout(), terminal::SetSize(200, 200))?;
 
     // * The Actual Game
+    screens::refresh_screen();
 
     loop {
-        if poll(Duration::from_millis(500))? {
+        if poll(Duration::from_millis(200))? {
             match event::read()? {
                 Event::Key(event) => {
                     // match the important events
@@ -70,6 +70,11 @@ fn main() -> io::Result<()> {
     }
 
     // * Resetting the Terminal
-    execute!(stdout(), terminal::LeaveAlternateScreen, style::ResetColor, cursor::Show)?;
+    execute!(
+        stdout(),
+        terminal::LeaveAlternateScreen,
+        style::ResetColor,
+        cursor::Show
+    )?;
     Ok(())
 }
