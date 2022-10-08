@@ -38,23 +38,13 @@ fn main() -> io::Result<()> {
     execute!(stdout(), terminal::SetTitle("Sokoban - RC"))?;
 
     // * The Actual Game
-    screens::refresh_screen();
+    let mut game = screens::Sokoban { ..Default::default() };
+    screens::refresh_screen(&game);
 
     loop {
-        if poll(Duration::from_millis(200))? {
+        if poll(Duration::from_millis(500))? {
             match event::read()? {
                 Event::Key(event) => {
-                    // match the important events
-                    match event.code {
-                        KeyCode::Left => println!("Left key pressed"),
-                        KeyCode::Right => println!("Right key pressed"),
-                        KeyCode::Up => println!("Up key pressed"),
-                        KeyCode::Down => println!("Down key pressed"),
-                        KeyCode::Enter => println!("Enter key pressed"),
-                        KeyCode::Char('r') => println!("R key pressed"),
-                        _ => screens::refresh_screen(),
-                    }
-
                     // if esc or ctrl + c pressed quit
                     let ctrl_c_pressed = event.code == KeyCode::Char('c')
                         && event.modifiers == KeyModifiers::CONTROL;
@@ -63,6 +53,20 @@ fn main() -> io::Result<()> {
                     if ctrl_c_pressed || esc_pressed {
                         break;
                     }
+                    
+                    let should_quit = game.handle_keypress(event.code);
+
+                    if should_quit {
+                        break;
+                    }
+
+                    // the important events
+                    //     KeyCode::Left => {},
+                    //     KeyCode::Right => {},
+                    //     KeyCode::Up => {},
+                    //     KeyCode::Down => {},
+                    //     KeyCode::Enter => {},
+                    //     KeyCode::Char('r') => {},
                 }
                 _ => {}
             }
