@@ -1,8 +1,5 @@
 use ansi_term::{ANSIString, ANSIStrings, Colour, Style};
-use crossterm::{
-    cursor, execute,
-    style::Print,
-};
+use crossterm::{cursor, execute, style::Print};
 use std::io::stdout;
 
 pub struct Manager<'a> {
@@ -80,7 +77,7 @@ impl Manager<'_> {
             let ansi_string = self.color[i].paint(self.text[i].to_string());
             let mut final_string: Vec<ANSIString> = Vec::new();
             final_string.push(ansi_string);
-            
+
             if reverse_index < 4 {
                 let mut text = String::new();
 
@@ -91,9 +88,9 @@ impl Manager<'_> {
                 }
 
                 match reverse_index {
-                    3 => text = format!("{} New Game", if is_highlighted {">"} else {" "}),
-                    2 => text = format!("{} How to play?", if is_highlighted {">"} else {" "}),
-                    1 => text = format!("{} Exit", if is_highlighted {">"} else {" "}),
+                    3 => text = format!("{} New Game", if is_highlighted { ">" } else { " " }),
+                    2 => text = format!("{} How to play?", if is_highlighted { ">" } else { " " }),
+                    1 => text = format!("{} Exit", if is_highlighted { ">" } else { " " }),
                     _ => {}
                 }
 
@@ -102,8 +99,10 @@ impl Manager<'_> {
                 final_string.push(Style::default().paint(""));
             }
 
-            let strings_array: &[ANSIString<'static>] = &[final_string[0].clone(), final_string[1].clone()];
-            execute!(stdout(), Print(ANSIStrings(strings_array))).expect("print home screen failed");
+            let strings_array: &[ANSIString<'static>] =
+                &[final_string[0].clone(), final_string[1].clone()];
+            execute!(stdout(), Print(ANSIStrings(strings_array)))
+                .expect("print home screen failed");
         }
     }
 }

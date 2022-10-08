@@ -3,27 +3,27 @@ use crossterm::{
     cursor,
     event::{self, poll, Event, KeyCode, KeyModifiers},
     execute,
-    style::{self, Print},
+    style,
     terminal,
 };
 use std::{
     io::{self, stdout},
-    time::{Duration, Instant},
+    time::{Duration},
 };
 
 pub mod screens;
 
-struct Point {
-    x: i8, // column
-    y: i8, // row
-}
+// struct Point {
+//     x: i8, // column
+//     y: i8, // row
+// }
 
-struct Game {
-    player: Point,
-    walls: Vec<Vec<Point>>, // column, row ~ x, y
-    storage_locations: Vec<Point>,
-    crates: Vec<Point>,
-}
+// struct Game {
+//     player: Point,
+//     walls: Vec<Vec<Point>>, // column, row ~ x, y
+//     storage_locations: Vec<Point>,
+//     crates: Vec<Point>,
+// }
 
 // ! can use SetColors when printing game
 // ! can use SetBackgroundColor Sets a default bg color for all the printed text
@@ -38,7 +38,9 @@ fn main() -> io::Result<()> {
     execute!(stdout(), terminal::SetTitle("Sokoban - RC"))?;
 
     // * The Actual Game
-    let mut game = screens::Sokoban { ..Default::default() };
+    let mut game = screens::Sokoban {
+        ..Default::default()
+    };
     screens::refresh_screen(&game);
 
     loop {
@@ -53,7 +55,7 @@ fn main() -> io::Result<()> {
                     if ctrl_c_pressed || esc_pressed {
                         break;
                     }
-                    
+
                     let should_quit = game.handle_keypress(event.code);
 
                     if should_quit {
