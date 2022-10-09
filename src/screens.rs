@@ -1,10 +1,11 @@
 use crossterm::{cursor, event::KeyCode, execute, terminal};
 use std::io::stdout;
 
-mod menu;
-mod instructions;
-mod transition;
 mod finished;
+mod game;
+mod instructions;
+mod menu;
+mod transition;
 
 // TODO: WHEN TRANSITIONING
 // {
@@ -65,7 +66,18 @@ impl Sokoban<'_> {
                 KeyCode::Enter | KeyCode::Char('h') => self.state = GameState::Menu,
                 _ => {}
             },
-            GameState::GameOver => if keycode == KeyCode::Enter { self.state = GameState::Menu },
+            GameState::GameOver => {
+                if keycode == KeyCode::Enter {
+                    self.state = GameState::Menu
+                }
+            }
+
+            GameState::Running => {
+                // FIXME
+                if keycode == KeyCode::Enter {
+                    self.state = GameState::Menu
+                }
+            }
             // TODO: Implement Later
             // No Event for Transition
             _ => {}
@@ -85,6 +97,14 @@ pub fn refresh_screen(game: &Sokoban<'_>) {
         GameState::Instructions => instructions::print(),
         GameState::Transition => game.transition_manager.print(),
         GameState::GameOver => finished::print(),
+        GameState::Running => {
+            // FIXME
+            println!("I was'nt able to finish this on time");
+            println!("I will finish this after the competition but im happy");
+            println!("I Submitted just to cement th progrss i made which im very happy about!");
+            println!("Press enter to exit");
+            println!("That i made this much in just 5 days");
+        }
         // TODO: Implement the Other States
         _ => {}
     }

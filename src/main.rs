@@ -33,8 +33,8 @@ fn main() -> io::Result<()> {
         if poll(Duration::from_millis(500)).unwrap() {
             if let Event::Key(event) = event::read().unwrap() {
                 // if esc or ctrl + c pressed quit
-                let ctrl_c_pressed = event.code == KeyCode::Char('c')
-                    && event.modifiers == KeyModifiers::CONTROL;
+                let ctrl_c_pressed =
+                    event.code == KeyCode::Char('c') && event.modifiers == KeyModifiers::CONTROL;
                 let esc_pressed = event.code == KeyCode::Esc;
 
                 if ctrl_c_pressed || esc_pressed {
