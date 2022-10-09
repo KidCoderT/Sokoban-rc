@@ -2,13 +2,11 @@ use ansi_term;
 use crossterm::{
     cursor,
     event::{self, poll, Event, KeyCode, KeyModifiers},
-    execute,
-    style,
-    terminal,
+    execute, style, terminal,
 };
 use std::{
     io::{self, stdout},
-    time::{Duration},
+    time::Duration,
 };
 
 pub mod screens;
@@ -72,13 +70,25 @@ fn main() -> io::Result<()> {
                 }
                 _ => {}
             }
+
+            // handle transition
+            if matches!(game.state, screens::GameState::Transition) {
+                println!("ticks = {}", game.transition_manager.ticks);
+                let should_quit = game.transition_manager.tick();
+                println!("transitioning, {}", should_quit);
+                if should_quit {
+                    break;
+                }
+
+                screens::refresh_screen(&game);
+            }
         }
     }
 
     // * Resetting the Terminal
     execute!(
         stdout(),
-        terminal::LeaveAlternateScreen,
+        // terminal::LeaveAlternateScreen,
         style::ResetColor,
         cursor::Show
     )?;

@@ -1,13 +1,9 @@
-use crossterm::{
-    cursor,
-    event::KeyCode,
-    execute,
-    terminal,
-};
+use crossterm::{cursor, event::KeyCode, execute, terminal};
 use std::{cmp, io::stdout};
 
 mod instructions;
 mod menu;
+mod transition;
 
 fn padding(window_size: u16, text_size: u16) -> u16 {
     // Gets the position from where
@@ -55,6 +51,7 @@ pub enum GameState {
 pub struct Sokoban<'a> {
     pub state: GameState,
     pub home_screen: menu::Manager<'a>,
+    pub transition_manager: transition::Manager,
 }
 
 impl Default for Sokoban<'_> {
@@ -64,6 +61,7 @@ impl Default for Sokoban<'_> {
             home_screen: menu::Manager {
                 ..Default::default()
             },
+            transition_manager: transition::Manager { ticks: 0 },
         }
     }
 }
@@ -80,7 +78,11 @@ impl Sokoban<'_> {
                     match self.home_screen.pointer {
                         1 => should_exit = true,
                         2 => self.state = GameState::Instructions,
-                        3 => self.state = GameState::Running,
+                        3 => {
+                            self.transition_manager.ticks = 0;
+                            println!("{}", self.transition_manager.ticks);
+                            self.state = GameState::Transition
+                        } // FIXME: GameState::Running,
                         _ => panic!("Wth this is not Possible"),
                     }
                     self.home_screen.reset_pointer();
@@ -92,6 +94,7 @@ impl Sokoban<'_> {
                 _ => {}
             },
             // TODO: Implement Later
+            // No Event for Transition
             _ => {}
         }
 
@@ -118,6 +121,14 @@ pub fn refresh_screen(game: &Sokoban<'_>) {
             let (text_length, text_height) = instructions::MSG_DIMENSIONS;
 
             instructions::print(
+                padding(columns, text_length.try_into().unwrap()),
+                padding(rows, text_height.try_into().unwrap()),
+            );
+        }
+        GameState::Transition => {
+            let (text_length, text_height) = transition::MSG_DIMENSIONS;
+
+            game.transition_manager.print(
                 padding(columns, text_length.try_into().unwrap()),
                 padding(rows, text_height.try_into().unwrap()),
             );
