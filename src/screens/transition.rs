@@ -1,26 +1,34 @@
 use ansi_term::{ANSIString, ANSIStrings, Colour, Style};
 use crossterm::{cursor, execute, style::Print};
-use rand::{thread_rng, Rng};
-use std::io::stdout;
+use std::{
+    io::stdout,
+    time::{Duration, Instant},
+};
 
 pub const MSG_DIMENSIONS: (usize, usize) = (29, 13);
 
 pub struct Manager {
-    pub ticks: i8,
+    pub start_time: Instant,
+    pub wait_time: Duration,
+}
+
+impl Default for Manager {
+    fn default() -> Self {
+        Manager {
+            start_time: Instant::now(),
+            wait_time: Duration::new(0, 0),
+        }
+    }
 }
 
 impl Manager {
-    pub fn tick(&mut self) -> bool {
-        let mut rng = thread_rng();
-        let increment = rng.gen_range(0..=30);
-        self.ticks = self.ticks + increment;
+    pub fn check(&mut self) -> bool {
+        return self.start_time.elapsed() > self.wait_time;
+    }
 
-        if self.ticks >= 100 {
-            self.ticks = 0;
-            return true;
-        }
-
-        return false;
+    pub fn setup(&mut self, wait_millis: u64) {
+        self.start_time = Instant::now();
+        self.wait_time = Duration::from_millis(wait_millis);
     }
 
     pub fn print(&self, px: u16, py: u16) {
@@ -33,7 +41,19 @@ impl Manager {
 
         let padding_x = vec![" "; px.try_into().unwrap()].join("");
 
-        let amount = (&self.ticks / 100) * 25;
+        let amount: i32 = {
+            let mut result = ((self.start_time.elapsed().as_millis() as f64
+                / self.wait_time.as_millis() as f64)
+                * 25.0)
+                .round() as i32;
+
+            if result > 25 {
+                result = 25;
+            }
+
+            result
+        };
+
         let percentage = vec!["="; amount.try_into().unwrap()].join("");
         let remaining = vec![" "; (25 - amount).try_into().unwrap()].join("");
 

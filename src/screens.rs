@@ -1,8 +1,8 @@
 use crossterm::{cursor, event::KeyCode, execute, terminal};
 use std::{cmp, io::stdout};
 
-mod instructions;
 mod menu;
+mod instructions;
 mod transition;
 
 fn padding(window_size: u16, text_size: u16) -> u16 {
@@ -10,7 +10,7 @@ fn padding(window_size: u16, text_size: u16) -> u16 {
     // if printed a text it will be shown
     // in the center
     if text_size > window_size {
-        panic!("Window way toooo Small!!")
+        panic!("Window way too Small!!")
     }
     (window_size - text_size) / 2
 }
@@ -26,6 +26,12 @@ fn padding(window_size: u16, text_size: u16) -> u16 {
 //         "." => Colour::Black.on(Colour::Black),            // Blank
 //         _ => Colour::Green.on(Colour::RGB(33, 135, 33)),   // correct pos
 //     }
+// }
+
+// TODO: WHEN TRANSITIONING
+// {
+//     self.state = GameState::Transition;
+//     self.transition_manager.setup(2500);
 // }
 
 fn long_text_len(strings: &Vec<&str>) -> u16 {
@@ -61,7 +67,9 @@ impl Default for Sokoban<'_> {
             home_screen: menu::Manager {
                 ..Default::default()
             },
-            transition_manager: transition::Manager { ticks: 0 },
+            transition_manager: transition::Manager {
+                ..Default::default()
+            },
         }
     }
 }
@@ -78,11 +86,7 @@ impl Sokoban<'_> {
                     match self.home_screen.pointer {
                         1 => should_exit = true,
                         2 => self.state = GameState::Instructions,
-                        3 => {
-                            self.transition_manager.ticks = 0;
-                            println!("{}", self.transition_manager.ticks);
-                            self.state = GameState::Transition
-                        } // FIXME: GameState::Running,
+                        3 => self.state = GameState::Running,
                         _ => panic!("Wth this is not Possible"),
                     }
                     self.home_screen.reset_pointer();

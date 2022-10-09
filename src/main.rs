@@ -4,15 +4,16 @@ use crossterm::{
     event::{self, poll, Event, KeyCode, KeyModifiers},
     execute, style, terminal,
 };
+use rand::Rng;
 use std::{
     io::{self, stdout},
-    time::Duration,
+    thread::sleep,
+    time::{Duration, Instant},
 };
 
 pub mod screens;
 
 fn main() -> io::Result<()> {
-    let mut repeats = 0;
     // * Setup Terminal
     execute!(stdout(), terminal::EnterAlternateScreen, cursor::Hide)?;
 
@@ -51,14 +52,17 @@ fn main() -> io::Result<()> {
 
             // handle transition
             if matches!(game.state, screens::GameState::Transition) {
-                repeats += 1;
-                println!("ticks = {}", game.transition_manager.ticks);
-                let should_quit = game.transition_manager.tick();
-                println!("transitioning, {}", should_quit);
-                if should_quit {
-                    println!("repeats, {}", repeats);
-                    break;
-                }
+                screens::refresh_screen(&game);
+
+                if game.transition_manager.check() {
+                    screens::refresh_screen(&game);
+                    sleep(Duration::from_millis(500)); // momentary pause
+                    game.state = screens::GameState::Menu;
+                } else {
+                    sleep(Duration::from_millis(
+                        rand::thread_rng().gen_range(10..=300),
+                    ));
+                } // momentary pause
 
                 screens::refresh_screen(&game);
             }
@@ -68,7 +72,7 @@ fn main() -> io::Result<()> {
     // * Resetting the Terminal
     execute!(
         stdout(),
-        // terminal::LeaveAlternateScreen,
+        terminal::LeaveAlternateScreen,
         style::ResetColor,
         cursor::Show
     )?;
