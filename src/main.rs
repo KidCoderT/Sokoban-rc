@@ -11,22 +11,8 @@ use std::{
 
 pub mod screens;
 
-// struct Point {
-//     x: i8, // column
-//     y: i8, // row
-// }
-
-// struct Game {
-//     player: Point,
-//     walls: Vec<Vec<Point>>, // column, row ~ x, y
-//     storage_locations: Vec<Point>,
-//     crates: Vec<Point>,
-// }
-
-// ! can use SetColors when printing game
-// ! can use SetBackgroundColor Sets a default bg color for all the printed text
-
 fn main() -> io::Result<()> {
+    let mut repeats = 0;
     // * Setup Terminal
     execute!(stdout(), terminal::EnterAlternateScreen, cursor::Hide)?;
 
@@ -59,24 +45,18 @@ fn main() -> io::Result<()> {
                     if should_quit {
                         break;
                     }
-
-                    // the important events
-                    //     KeyCode::Left => {},
-                    //     KeyCode::Right => {},
-                    //     KeyCode::Up => {},
-                    //     KeyCode::Down => {},
-                    //     KeyCode::Enter => {},
-                    //     KeyCode::Char('r') => {},
                 }
                 _ => {}
             }
 
             // handle transition
             if matches!(game.state, screens::GameState::Transition) {
+                repeats += 1;
                 println!("ticks = {}", game.transition_manager.ticks);
                 let should_quit = game.transition_manager.tick();
                 println!("transitioning, {}", should_quit);
                 if should_quit {
+                    println!("repeats, {}", repeats);
                     break;
                 }
 
