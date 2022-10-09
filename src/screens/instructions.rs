@@ -2,9 +2,9 @@ use ansi_term::{ANSIString, ANSIStrings, Colour, Style};
 use crossterm::{cursor, execute, style::Print};
 use std::io::stdout;
 
-const SIZE: usize = 17;
+pub const MSG_DIMENSIONS: (usize, usize) = (48, 17); // made hardcoded
 
-fn strings_array(px: u16) -> [ANSIString<'static>; SIZE] {
+fn strings_array(px: u16) -> [ANSIString<'static>; MSG_DIMENSIONS.1] {
     let default_style = Style::default();
     let title_style = Style::new().fg(Colour::Red);
     let info_style = Style::new().fg(Colour::Blue).bold();
@@ -13,7 +13,7 @@ fn strings_array(px: u16) -> [ANSIString<'static>; SIZE] {
 
     let padding_x = vec![" "; px.try_into().unwrap()].join("");
 
-    let strings_array: [ANSIString; SIZE] = [
+    let strings_array: [ANSIString; MSG_DIMENSIONS.1] = [
         title_style.paint(padding_x.clone() + "▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄\n"),
         title_style.paint(padding_x.clone() + "█░██░█▀▄▄▀█░███░███▄░▄█▀▄▄▀███▀▄▄▀█░██░▄▄▀█░██░█\n"),
         title_style.paint(padding_x.clone() + "█░▄▄░█░██░█▄▀░▀▄████░██░██░███░▀▀░█░██░▀▀░█░▀▀░█\n"),
@@ -35,8 +35,6 @@ fn strings_array(px: u16) -> [ANSIString<'static>; SIZE] {
 
     return strings_array;
 }
-
-pub const MSG_DIMENSIONS: (usize, usize) = (48, SIZE); // made hardcoded
 
 pub fn print(px: u16, py: u16) {
     execute!(stdout(), cursor::MoveTo(0, py)).unwrap();

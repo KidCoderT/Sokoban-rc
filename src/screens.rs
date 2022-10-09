@@ -4,6 +4,7 @@ use std::{cmp, io::stdout};
 mod menu;
 mod instructions;
 mod transition;
+mod finished;
 
 fn padding(window_size: u16, text_size: u16) -> u16 {
     // Gets the position from where
@@ -47,11 +48,11 @@ fn long_text_len(strings: &Vec<&str>) -> u16 {
 // Shows the Game state and is
 // important for key pressing
 pub enum GameState {
-    Menu,
     Instructions,
-    Running,
     Transition,
     GameOver,
+    Running,
+    Menu,
 }
 
 pub struct Sokoban<'a> {
@@ -97,6 +98,10 @@ impl Sokoban<'_> {
                 KeyCode::Enter | KeyCode::Char('h') => self.state = GameState::Menu,
                 _ => {}
             },
+            GameState::GameOver => match keycode {
+                KeyCode::Enter => self.state = GameState::Menu,
+                _ => {}
+            },
             // TODO: Implement Later
             // No Event for Transition
             _ => {}
@@ -133,6 +138,14 @@ pub fn refresh_screen(game: &Sokoban<'_>) {
             let (text_length, text_height) = transition::MSG_DIMENSIONS;
 
             game.transition_manager.print(
+                padding(columns, text_length.try_into().unwrap()),
+                padding(rows, text_height.try_into().unwrap()),
+            );
+        }
+        GameState::GameOver => {
+            let (text_length, text_height) = finished::MSG_DIMENSIONS;
+
+            finished::print(
                 padding(columns, text_length.try_into().unwrap()),
                 padding(rows, text_height.try_into().unwrap()),
             );

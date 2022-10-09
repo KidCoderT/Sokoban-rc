@@ -8,7 +8,7 @@ use rand::Rng;
 use std::{
     io::{self, stdout},
     thread::sleep,
-    time::{Duration, Instant},
+    time::Duration,
 };
 
 pub mod screens;
