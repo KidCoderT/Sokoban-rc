@@ -12,15 +12,16 @@ use std::{
 };
 
 pub mod screens;
+pub mod utils;
 
 fn main() -> io::Result<()> {
     // * Setup Terminal
-    execute!(stdout(), terminal::EnterAlternateScreen, cursor::Hide)?;
+    execute!(stdout(), terminal::EnterAlternateScreen, cursor::Hide).unwrap();
 
-    terminal::enable_raw_mode()?;
-    let _ = ansi_term::enable_ansi_support();
+    terminal::enable_raw_mode().unwrap();
+    ansi_term::enable_ansi_support().unwrap();
 
-    execute!(stdout(), terminal::SetTitle("Sokoban - RC"))?;
+    execute!(stdout(), terminal::SetTitle("Sokoban - RC")).unwrap();
 
     // * The Actual Game
     let mut game = screens::Sokoban {
@@ -29,25 +30,22 @@ fn main() -> io::Result<()> {
     screens::refresh_screen(&game);
 
     loop {
-        if poll(Duration::from_millis(500))? {
-            match event::read()? {
-                Event::Key(event) => {
-                    // if esc or ctrl + c pressed quit
-                    let ctrl_c_pressed = event.code == KeyCode::Char('c')
-                        && event.modifiers == KeyModifiers::CONTROL;
-                    let esc_pressed = event.code == KeyCode::Esc;
+        if poll(Duration::from_millis(500)).unwrap() {
+            if let Event::Key(event) = event::read().unwrap() {
+                // if esc or ctrl + c pressed quit
+                let ctrl_c_pressed = event.code == KeyCode::Char('c')
+                    && event.modifiers == KeyModifiers::CONTROL;
+                let esc_pressed = event.code == KeyCode::Esc;
 
-                    if ctrl_c_pressed || esc_pressed {
-                        break;
-                    }
-
-                    let should_quit = game.handle_keypress(event.code);
-
-                    if should_quit {
-                        break;
-                    }
+                if ctrl_c_pressed || esc_pressed {
+                    break;
                 }
-                _ => {}
+
+                let should_quit = game.handle_keypress(event.code);
+
+                if should_quit {
+                    break;
+                }
             }
 
             // handle transition
@@ -70,11 +68,13 @@ fn main() -> io::Result<()> {
     }
 
     // * Resetting the Terminal
+    // TODO: add Reset on Drop
     execute!(
         stdout(),
         terminal::LeaveAlternateScreen,
         style::ResetColor,
         cursor::Show
-    )?;
+    )
+    .unwrap();
     Ok(())
 }

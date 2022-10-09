@@ -1,8 +1,9 @@
+use crate::utils;
 use ansi_term::{ANSIString, ANSIStrings, Colour, Style};
 use crossterm::{cursor, execute, style::Print};
 use std::io::stdout;
 
-pub const MSG_DIMENSIONS: (usize, usize) = (48, 17); // made hardcoded
+const MSG_DIMENSIONS: (usize, usize) = (48, 17); // made hardcoded
 
 fn strings_array(px: u16) -> [ANSIString<'static>; MSG_DIMENSIONS.1] {
     let default_style = Style::default();
@@ -33,10 +34,15 @@ fn strings_array(px: u16) -> [ANSIString<'static>; MSG_DIMENSIONS.1] {
         simple_info.paint(padding_x.clone() + "          Press ENTER or H to return"),
     ];
 
-    return strings_array;
+    strings_array
 }
 
-pub fn print(px: u16, py: u16) {
+pub fn print() {
+    let (columns, rows) = utils::terminal_size();
+    let (px, py) = (
+        utils::padding(columns, MSG_DIMENSIONS.0 as u16),
+        utils::padding(rows, MSG_DIMENSIONS.1 as u16),
+    );
     execute!(stdout(), cursor::MoveTo(0, py)).unwrap();
     execute!(stdout(), Print(ANSIStrings(&strings_array(px)))).expect("print home screen failed");
 }

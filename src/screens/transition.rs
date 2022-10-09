@@ -1,3 +1,4 @@
+use crate::utils;
 use ansi_term::{ANSIString, ANSIStrings, Colour, Style};
 use crossterm::{cursor, execute, style::Print};
 use std::{
@@ -5,7 +6,7 @@ use std::{
     time::{Duration, Instant},
 };
 
-pub const MSG_DIMENSIONS: (usize, usize) = (29, 13);
+const MSG_DIMENSIONS: (usize, usize) = (29, 13);
 
 pub struct Manager {
     pub start_time: Instant,
@@ -23,7 +24,7 @@ impl Default for Manager {
 
 impl Manager {
     pub fn check(&mut self) -> bool {
-        return self.start_time.elapsed() > self.wait_time;
+        self.start_time.elapsed() > self.wait_time
     }
 
     pub fn setup(&mut self, wait_millis: u64) {
@@ -31,7 +32,13 @@ impl Manager {
         self.wait_time = Duration::from_millis(wait_millis);
     }
 
-    pub fn print(&self, px: u16, py: u16) {
+    pub fn print(&self) {
+        let (columns, rows) = utils::terminal_size();
+        let (px, py) = (
+            utils::padding(columns, MSG_DIMENSIONS.0 as u16),
+            utils::padding(rows, MSG_DIMENSIONS.1 as u16),
+        );
+
         execute!(stdout(), cursor::MoveTo(0, py)).unwrap();
 
         let default_style = Style::default();

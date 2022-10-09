@@ -1,3 +1,4 @@
+use crate::utils;
 use ansi_term::{ANSIString, ANSIStrings, Colour, Style};
 use crossterm::{cursor, execute, style::Print};
 use std::io::stdout;
@@ -67,9 +68,15 @@ impl Manager<'_> {
         self.pointer = 3;
     }
 
-    pub fn print(&self, px: u16, py: u16) {
+    pub fn print(&self) {
+        let (columns, rows) = utils::terminal_size();
+        let (px, py) = (
+            utils::padding(columns, utils::long_text_len(&self.text)),
+            utils::padding(rows, self.text.len().try_into().unwrap()),
+        );
+
         for i in 0..self.text.len() {
-            let index = i.clone() as u16;
+            let index = i as u16;
             let reverse_index = (self.text.len() - i) as u16;
 
             execute!(stdout(), cursor::MoveTo(px, py + index),).unwrap();
